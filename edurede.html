@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EduRede — rede colaborativa de escolas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F9; --surface:#FFFFFF; --surface2:#E9EEF5; --ink:#14213D; --ink2:#4B5670; --ink3:#8A93A8;
+  --line:#D8DFEA; --pen:#2743E0; --pen-soft:#E3E8FF; --marker:#FFE45C; --marker-ink:#5C4A00;
+  --ok:#1E9E63; --ok-soft:#DDF5E9; --warn:#D4780F; --warn-soft:#FFF0DC; --danger:#C8323E;
+  --radius:14px; --shadow:0 1px 2px rgba(20,33,61,.06), 0 6px 20px rgba(20,33,61,.06);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1626; --surface:#1A2338; --surface2:#232E47; --ink:#EEF2FA; --ink2:#B4BDD1; --ink3:#7B869E;
+  --line:#2E3A55; --pen:#7B8CFF; --pen-soft:#26305A; --marker:#F2D33E; --marker-ink:#1A1400;
+  --ok:#3FCB8B; --ok-soft:#173A2B; --warn:#F0A54A; --warn-soft:#3D2A12; --danger:#FF6B75;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1626; --surface:#1A2338; --surface2:#232E47; --ink:#EEF2FA; --ink2:#B4BDD1; --ink3:#7B869E;
+  --line:#2E3A55; --pen:#7B8CFF; --pen-soft:#26305A; --marker:#F2D33E; --marker-ink:#1A1400;
+  --ok:#3FCB8B; --ok-soft:#173A2B; --warn:#F0A54A; --warn-soft:#3D2A12; --danger:#FF6B75;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"Bricolage Grotesque","Inter",system-ui,sans-serif;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2.1rem,6vw,3.6rem);font-weight:800}
+h2{font-size:clamp(1.5rem,3.5vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0}
+a{color:var(--pen);text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+img{max-width:100%}
+.hl{background:linear-gradient(transparent 55%, var(--marker) 55%, var(--marker) 92%, transparent 92%);padding:0 .1em;color:inherit}
+.muted{color:var(--ink2)} .small{font-size:.86rem} .tiny{font-size:.78rem;color:var(--ink3)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--surface);border-bottom:1px solid var(--line);padding-top:0}
+.top .wrap{display:flex;align-items:center;gap:20px;height:62px}
+.logo{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.25rem;color:var(--ink)}
+.logo .mark{width:30px;height:30px;border-radius:8px;background:var(--pen);position:relative;overflow:hidden}
+.logo .mark::after{content:"";position:absolute;left:5px;right:5px;bottom:7px;height:7px;background:var(--marker);transform:rotate(-6deg);border-radius:2px}
+nav.main{display:flex;gap:4px;margin-left:auto}
+nav.main button{padding:8px 12px;border-radius:9px;color:var(--ink2);font-weight:500}
+nav.main button:hover{background:var(--surface2);color:var(--ink)}
+nav.main button.active{color:var(--ink);background:var(--surface2);box-shadow:inset 0 -3px 0 var(--marker)}
+.icon-btn{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--ink2)}
+.icon-btn:hover{background:var(--surface2);color:var(--ink)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--pen-soft);color:var(--pen);display:grid;place-items:center;font-weight:600;font-size:.85rem}
+nav.tabbar{display:none}
+
+main{padding:28px 0 90px}
+section.page{display:none} section.page.active{display:block}
+
+/* buttons, chips */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;font-weight:600;background:var(--pen);color:#fff;transition:transform .12s}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--surface2);color:var(--ink)}
+.btn.marker{background:var(--marker);color:var(--marker-ink)}
+.btn.sm{padding:7px 12px;font-size:.86rem}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface2);font-size:.8rem;font-weight:500;color:var(--ink2)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.pen{background:var(--pen-soft);color:var(--pen)}
+.chip.marker{background:var(--marker);color:var(--marker-ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.filters button{padding:7px 13px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:.86rem;font-weight:500;color:var(--ink2)}
+.filters button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+.row{display:flex;align-items:center;gap:12px} .between{justify-content:space-between} .wrapf{flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:6px}
+.sec-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:34px 0 14px;flex-wrap:wrap}
+.sec-head p{max-width:56ch}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:30px;align-items:center;padding:20px 0 10px}
+.hero p.lead{font-size:1.1rem;color:var(--ink2);max-width:48ch;margin:16px 0 22px}
+.hero .actions{display:flex;gap:10px;flex-wrap:wrap}
+.notebook{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);position:relative;
+  background-image:repeating-linear-gradient(transparent 0 31px, var(--line) 31px 32px);background-position:0 18px}
+.notebook::before{content:"";position:absolute;left:34px;top:0;bottom:0;width:1px;background:#F08A8A;opacity:.6}
+.notebook .line{padding-left:40px;height:32px;display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-weight:600}
+.notebook .line .n{color:var(--ink3);font-size:.8rem;width:18px}
+.notebook .line .bar{height:10px;border-radius:3px;background:var(--pen-soft);flex:1;max-width:var(--w)}
+.notebook .line:first-child .bar{background:var(--marker)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:38px}
+.stat{padding:16px 18px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line)}
+.stat b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.7rem;font-weight:800}
+.stat span{color:var(--ink2);font-size:.86rem}
+
+/* material card */
+.mat{display:flex;flex-direction:column;gap:10px;transition:border-color .15s}
+.mat:hover{border-color:var(--pen)}
+.mat .type{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:.75rem;letter-spacing:.02em}
+.t-resumo{background:var(--pen-soft);color:var(--pen)} .t-prova{background:var(--warn-soft);color:var(--warn)} .t-lista{background:var(--ok-soft);color:var(--ok)} .t-apostila{background:var(--marker);color:var(--marker-ink)} .t-gabarito{background:var(--surface2);color:var(--ink2)}
+.mat h3{font-size:1.02rem}
+.stars{color:#E8A400;letter-spacing:1px;font-size:.9rem}
+.mat .foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:10px;border-top:1px dashed var(--line)}
+.search{display:flex;gap:10px;margin-top:16px}
+.search input{flex:1}
+.search select{width:auto}
+
+/* ranking */
+.rank-table{display:flex;flex-direction:column;gap:8px}
+.rrow{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.rrow .pos{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.25rem;color:var(--ink3)}
+.rrow.top1{border-color:transparent;background:linear-gradient(90deg,var(--marker) 0 6px,var(--surface) 6px);}
+.rrow.top1 .pos{color:var(--marker-ink);background:var(--marker);width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-size:1.05rem;transform:rotate(-4deg)}
+.rrow .pts{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.15rem;text-align:right}
+.rrow .pts small{display:block;font-family:Inter,sans-serif;font-weight:400;color:var(--ink3);font-size:.75rem}
+.delta{font-size:.78rem;font-weight:600} .delta.up{color:var(--ok)} .delta.down{color:var(--danger)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:.82rem;font-weight:500}
+.badge i{font-style:normal;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--marker);color:var(--marker-ink);font-size:.7rem;font-weight:800}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}
+.tabs button{padding:10px 14px;color:var(--ink2);font-weight:500;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--marker)}
+
+/* forum */
+.thread{display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:start}
+.votes{display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:700;color:var(--ink2)}
+.votes button{width:30px;height:26px;border-radius:7px} .votes button:hover{background:var(--surface2)}
+.reply{padding:12px 14px;border-radius:10px;background:var(--surface2);margin-top:10px}
+.reply.best{background:var(--ok-soft);border-left:4px solid var(--ok)}
+
+/* school */
+.school-hero{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.slogo{width:84px;height:84px;border-radius:20px;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.6rem;color:#fff}
+.bar-row{display:grid;grid-template-columns:120px 1fr 40px;align-items:center;gap:10px;font-size:.86rem}
+.bar{height:10px;border-radius:6px;background:var(--surface2);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--pen);border-radius:6px}
+.table{width:100%;border-collapse:collapse;font-size:.9rem}
+.table th{text-align:left;color:var(--ink3);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line)}
+.table td{padding:10px;border-bottom:1px solid var(--line)}
+.scroll{overflow-x:auto}
+
+/* modal + toast */
+.overlay{position:fixed;inset:0;background:rgba(10,15,30,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+.overlay.open{display:flex}
+.modal{background:var(--surface);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:22px;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+@media (min-width:640px){.overlay{align-items:center;padding:20px}.modal{border-radius:20px}}
+.modal .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.field{margin-bottom:12px} .field label{display:block;font-size:.86rem;font-weight:500;margin-bottom:5px;color:var(--ink2)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:500;opacity:0;transition:.25s;z-index:60;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.notice{border-left:4px solid var(--pen);background:var(--pen-soft);padding:12px 14px;border-radius:10px;font-size:.9rem}
+.comment{padding:10px 0;border-top:1px solid var(--line)}
+.rate-btns button{font-size:1.4rem;color:var(--ink3);padding:2px} .rate-btns button.lit{color:#E8A400}
+.step{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start}
+.step .k{width:38px;height:38px;border-radius:10px;background:var(--pen);color:#fff;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:800}
+.ev{display:grid;grid-template-columns:58px 1fr;gap:12px;align-items:center}
+.ev .date{background:var(--surface2);border-radius:10px;text-align:center;padding:6px 4px;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;line-height:1.1}
+.ev .date small{display:block;font-family:Inter,sans-serif;font-weight:500;font-size:.7rem;color:var(--ink3)}
+footer{border-top:1px solid var(--line);padding:24px 0;color:var(--ink3);font-size:.82rem}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:12px;background:var(--surface2);margin:4px 0 10px;max-width:100%;overflow-x:auto}
+.seg button{padding:9px 14px;border-radius:9px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.rrow .chips{margin-top:6px}
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr} .notebook{display:none}
+  .g3,.g4{grid-template-columns:repeat(2,1fr)} .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  nav.main{display:none}
+  nav.tabbar{display:grid;grid-template-columns:repeat(7,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px));z-index:30}
+  nav.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.66rem;color:var(--ink3);padding:4px 0}
+  nav.tabbar button.active{color:var(--pen)}
+  nav.tabbar button.active svg{stroke:var(--pen)}
+  nav.tabbar svg{width:22px;height:22px;stroke:var(--ink3);stroke-width:1.8;fill:none}
+  .search{flex-direction:column}.search select{width:100%}
+  .bar-row{grid-template-columns:90px 1fr 36px}
+  .top .wrap{height:56px}
+}
+@media (max-width:640px){.seg{display:flex}.seg button{flex:1;padding:9px 8px;font-size:.86rem;white-space:normal;line-height:1.2}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#" data-go="inicio"><span class="mark"></span>EduRede</a>
+    <nav class="main" id="nav-main"></nav>
+    <button class="icon-btn" id="theme" title="Alternar tema" aria-label="Alternar tema claro/escuro">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+    <button class="avatar" data-go="perfil" title="Meu perfil">JL</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- INÍCIO -->
+<section class="page active" id="p-inicio">
+  <div class="hero">
+    <div>
+      <span class="chip pen">Rede em fase piloto · 48 escolas</span>
+      <h1 style="margin-top:14px">Uma escola ajuda a outra. <span class="hl">Todo mundo aprende.</span></h1>
+      <p class="lead">Alunos, professores e escolas compartilham resumos, listas e provas anteriores. Quem contribui sobe no ranking; quem precisa encontra ajuda.</p>
+      <div class="actions">
+        <button class="btn" data-go="materiais">Explorar materiais</button>
+        <button class="btn ghost" onclick="openUpload()">Enviar um material</button>
+        <button class="btn ghost" data-go="professores">Sou professor</button>
+      </div>
+    </div>
+    <div class="notebook" aria-hidden="true">
+      <div class="line"><span class="n">1</span>Prova de Física · 2º ano<span class="bar" style="--w:70px"></span></div>
+      <div class="line"><span class="n">2</span>Resumo Revolução Francesa<span class="bar" style="--w:40px"></span></div>
+      <div class="line"><span class="n">3</span>Lista de funções afim<span class="bar" style="--w:90px"></span></div>
+      <div class="line"><span class="n">4</span>Gabarito comentado ENEM<span class="bar" style="--w:55px"></span></div>
+      <div class="line"><span class="n">5</span>Dúvida: titulação ácido-base<span class="bar" style="--w:30px"></span></div>
+      <div class="line"><span class="n">6</span>Parceria Química · CE Ipê × EE Mangue</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>48</b><span>escolas conectadas</span></div>
+    <div class="stat"><b>2.317</b><span>materiais aprovados</span></div>
+    <div class="stat"><b>6.804</b><span>dúvidas respondidas</span></div>
+    <div class="stat"><b>31</b><span>parcerias ativas</span></div>
+  </div>
+
+  <div class="sec-head"><div><h2>Como funciona</h2><p class="muted">Três papéis, um só objetivo: fazer o conhecimento circular entre escolas.</p></div></div>
+  <div class="grid g3">
+    <div class="card step"><div class="k">1</div><div><h3>Alunos e professores enviam</h3><p class="muted small">Resumos, listas de exercícios, provas anteriores e gabaritos, organizados por disciplina e série.</p></div></div>
+    <div class="card step"><div class="k">2</div><div><h3>Professores aprovam</h3><p class="muted small">Nada é publicado sem revisão de um professor da rede. Conteúdo com direitos autorais de terceiros não entra.</p></div></div>
+    <div class="card step"><div class="k">3</div><div><h3>A rede reconhece</h3><p class="muted small">Cada contribuição, avaliação e resposta no fórum vira pontos para você e para a sua escola.</p></div></div>
+  </div>
+
+  <div class="sec-head"><div><h2>Materiais em alta esta semana</h2></div><button class="btn ghost sm" data-go="materiais">Ver todos</button></div>
+  <div class="grid g3" id="home-mats"></div>
+
+  <div class="grid g2" style="margin-top:34px">
+    <div>
+      <div class="sec-head" style="margin-top:0"><h2>Escolas que mais contribuem</h2><button class="btn ghost sm" data-go="rankings">Ver rankings</button></div>
+      <div class="rank-table" id="home-rank"></div>
+    </div>
+    <div>
+      <div class="sec-head" style="margin-top:0"><h2>Mural da rede</h2></div>
+      <div class="stack" id="home-events" style="gap:10px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MATERIAIS -->
+<section class="page" id="p-materiais">
+  <div class="sec-head" style="margin-top:0"><div><h2>Biblioteca de materiais</h2><p class="muted">Tudo aqui foi revisado por um professor da rede. Avalie o que usar: ajuda quem vem depois.</p></div><button class="btn" onclick="openUpload()">Enviar material</button></div>
+  <div class="search">
+    <input id="q" placeholder="Buscar por título, tema ou tag (ex.: funções, ENEM, redação)">
+    <select id="f-serie"><option value="">Todas as séries</option><option>6º ano</option><option>7º ano</option><option>8º ano</option><option>9º ano</option><option>1º ano EM</option><option>2º ano EM</option><option>3º ano EM</option></select>
+    <select id="f-tipo"><option value="">Todos os tipos</option><option>Resumo</option><option>Prova</option><option>Lista</option><option>Apostila</option><option>Gabarito</option></select>
+  </div>
+  <div class="filters" id="f-disc"></div>
+  <p class="tiny" id="mat-count"></p>
+  <div class="grid g3" id="mat-grid"></div>
+</section>
+
+<!-- RANKINGS -->
+<section class="page" id="p-rankings">
+  <div class="sec-head" style="margin-top:0"><div><h2>Rankings</h2><p class="muted">Dois rankings separados: um mede quem colabora na rede, o outro mede os resultados das escolas. A assinatura da escola não altera nenhum dos dois.</p></div></div>
+  <div class="seg" id="rank-kind"><button class="on" data-k="contrib">Contribuição na rede</button><button data-k="result">Resultados das escolas</button></div>
+
+  <div id="rk-contrib">
+    <p class="muted small" style="margin:6px 0 4px;max-width:64ch">Pontos vêm de materiais aprovados, avaliações recebidas e respostas úteis no fórum. Reiniciam todo mês; o anual acumula.</p>
+    <div class="tabs" id="rank-tabs" style="margin-top:14px">
+      <button class="on" data-rt="escolas">Escolas</button><button data-rt="alunos">Alunos</button><button data-rt="professores">Professores</button>
+    </div>
+    <div class="filters">
+      <select id="r-reg" style="width:auto"><option value="">Todas as regiões</option><option>Sudeste</option><option>Nordeste</option><option>Sul</option><option>Norte</option><option>Centro-Oeste</option></select>
+      <select id="r-disc" style="width:auto"><option value="">Todas as disciplinas</option><option>Matemática</option><option>Português</option><option>Física</option><option>Química</option><option>Biologia</option><option>História</option><option>Geografia</option></select>
+      <select id="r-per" style="width:auto"><option value="mes">Este mês</option><option value="ano">2026</option></select>
+    </div>
+    <div class="rank-table" id="rank-list"></div>
+    <div class="sec-head"><div><h2>Selos e conquistas</h2><p class="muted">Selos são atribuídos automaticamente ao fim de cada mês.</p></div></div>
+    <div class="chips" id="badge-list"></div>
+  </div>
+
+  <div id="rk-result" style="display:none">
+    <div class="notice" style="margin:6px 0 14px">Este ranking mede resultados, não colaboração. Usa dados públicos e critérios abertos, e ser assinante não muda a posição. Os números abaixo são de demonstração.</div>
+    <div class="filters" style="margin-top:0">
+      <select id="s-reg" style="width:auto"><option value="">Todas as regiões</option><option>Sudeste</option><option>Nordeste</option><option>Sul</option><option>Norte</option><option>Centro-Oeste</option></select>
+      <select id="s-ord" style="width:auto"><option value="indice">Ordenar por índice geral</option><option value="enem">Ordenar por ENEM</option><option value="fuvest">Ordenar por FUVEST</option><option value="obmep">Ordenar por OBMEP</option><option value="infra">Ordenar por infraestrutura</option><option value="evol">Ordenar por evolução</option></select>
+    </div>
+    <div class="rank-table" id="res-list"></div>
+    <p class="tiny" style="margin-top:10px">A EMEF Araribá atende só o Ensino Fundamental e não entra neste ranking.</p>
+    <div class="sec-head"><div><h2>Como calculamos o índice</h2><p class="muted">Cada critério vira uma nota de 0 a 100 e recebe um peso. Os pesos são públicos.</p></div></div>
+    <div class="grid g2">
+      <div class="card"><h3 style="margin-bottom:12px">Pesos</h3><div class="stack" style="gap:10px" id="pesos"></div></div>
+      <div class="card stack" style="gap:10px"><h3>O que cada critério mede</h3>
+        <p class="small muted"><b>ENEM:</b> média da escola na última edição.</p>
+        <p class="small muted"><b>FUVEST:</b> percentual dos formandos aprovados.</p>
+        <p class="small muted"><b>OBMEP:</b> medalhas da escola na última edição.</p>
+        <p class="small muted"><b>Infraestrutura:</b> nota de 0 a 100 para biblioteca, laboratório, internet, acessibilidade e quadra, respondida pela escola e conferida com o Censo Escolar.</p>
+        <p class="small muted"><b>Evolução:</b> quanto a média do ENEM subiu em relação ao ano anterior. Reconhece esforço e progresso, não só o ponto de partida.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FÓRUM -->
+<section class="page" id="p-forum">
+  <div class="sec-head" style="margin-top:0"><div><h2>Fórum de dúvidas</h2><p class="muted">Perguntas públicas, respondidas por alunos e professores de qualquer escola da rede. Tudo é moderado.</p></div><button class="btn" onclick="toast('Pergunta enviada para moderação. Aparece no fórum em até 1h.')">Fazer uma pergunta</button></div>
+  <div class="filters" id="forum-filters"></div>
+  <div class="stack" id="forum-list" style="gap:12px"></div>
+</section>
+
+<!-- ESCOLAS -->
+<section class="page" id="p-escolas">
+  <div id="school-list-view">
+    <div class="sec-head" style="margin-top:0"><div><h2>Escolas da rede</h2><p class="muted">Cada escola tem um perfil público com suas contribuições e parcerias.</p></div></div>
+    <div class="grid g3" id="school-grid"></div>
+    <div class="sec-head"><div><h2>Parcerias ativas</h2><p class="muted">Uma escola apadrinha outra em uma disciplina: compartilha materiais, tira dúvidas e organiza simulados juntos.</p></div></div>
+    <div class="grid g2" id="partner-list"></div>
+  </div>
+  <div id="school-profile-view" style="display:none"></div>
+</section>
+
+<!-- PROFESSORES -->
+<section class="page" id="p-professores">
+  <div class="sec-head" style="margin-top:0"><div><h2>Para professores</h2><p class="muted">Compartilhe o que você já produz, use o que outros professores fizeram e ganhe reconhecimento por isso.</p></div><button class="btn" onclick="openProf()">Entrar como professor</button></div>
+  <div class="grid g2">
+    <div class="card stack"><h3>Menos tempo preparando aula</h3><p class="small muted">Listas, provas e resumos revisados por outros professores, filtrados por disciplina, série e tema.</p></div>
+    <div class="card stack"><h3>Seu nome no material</h3><p class="small muted">Cada material mostra o autor e a escola. Downloads e avaliações somam pontos no ranking de professores.</p></div>
+    <div class="card stack"><h3>Correção cruzada</h3><p class="small muted">Troque redações e simulados com professores de outras escolas e tenha uma segunda leitura.</p></div>
+    <div class="card stack"><h3>Você decide o que entra</h3><p class="small muted">Você aprova os materiais dos alunos da sua disciplina e só publica o que produziu ou tem autorização para compartilhar.</p></div>
+  </div>
+
+  <div class="sec-head"><div><h2>Professores em destaque</h2><p class="muted">Pontos deste mês: materiais aprovados, avaliações e respostas no fórum.</p></div><button class="btn ghost sm" onclick="showProfRank()">Ver ranking de professores</button></div>
+  <div class="grid g3" id="prof-top"></div>
+
+  <div class="sec-head"><div><h2>Como começar</h2></div></div>
+  <div class="grid g3">
+    <div class="card step"><div class="k">1</div><div><h3>Peça o vínculo</h3><p class="muted small">Sua escola convida você, ou você pede o acesso e a coordenação confirma.</p></div></div>
+    <div class="card step"><div class="k">2</div><div><h3>Envie um material</h3><p class="muted small">Uma lista, uma prova antiga ou um resumo que você já usa em sala.</p></div></div>
+    <div class="card step"><div class="k">3</div><div><h3>Revise e responda</h3><p class="muted small">Aprove materiais de alunos e responda dúvidas no fórum para subir no ranking.</p></div></div>
+  </div>
+
+  <div class="sec-head"><div><h2>Seu painel</h2><p class="muted">Prévia do que você vê depois de entrar.</p></div></div>
+  <div id="prof-panel"></div>
+</section>
+
+<!-- PERFIL -->
+<section class="page" id="p-perfil">
+  <div class="tabs" id="perfil-tabs"><button class="on" data-pt="aluno">Meu perfil</button><button data-pt="painel">Painel da escola (admin)</button></div>
+  <div id="perfil-aluno"></div>
+  <div id="perfil-painel" style="display:none"></div>
+</section>
+
+<!-- REGRAS -->
+<section class="page" id="p-regras">
+  <div class="sec-head" style="margin-top:0"><div><h2>Regras da rede</h2><p class="muted">Curtas e sem letra miúda.</p></div></div>
+  <div class="grid g2">
+    <div class="card stack"><h3>Privacidade (LGPD)</h3><p class="small muted">Guardamos apenas nome, série e escola de cada aluno. Nada de CPF, endereço ou telefone.</p><p class="small muted">Perfis de alunos são visíveis somente dentro da rede, para usuários autenticados. Buscadores não os indexam.</p><p class="small muted">Alunos menores de 18 anos só entram com a autorização de um responsável. A escola coleta essa autorização e a registra no painel; sem ela, o aluno não publica nem aparece nos rankings.</p><p class="small muted">A escola pode excluir os dados dos seus alunos a qualquer momento. Os papéis de cada parte no tratamento dos dados ficam definidos em contrato com a escola.</p></div>
+    <div class="card stack"><h3>Interações</h3><p class="small muted">Não existem mensagens privadas entre alunos de escolas diferentes. Toda conversa acontece no fórum, publicamente.</p><p class="small muted">Professores moderam materiais e respostas. Qualquer conteúdo pode ser denunciado com um toque.</p><p class="small muted">Denúncias são revisadas em até 24h por um professor de outra escola.</p></div>
+    <div class="card stack"><h3>Direitos autorais</h3><p class="small muted">Envie apenas o que você mesmo produziu ou o que a sua escola autorizou compartilhar.</p><p class="small muted">Livros didáticos, apostilas de cursinho e materiais pagos não podem ser enviados, nem em trechos.</p><p class="small muted">Ao enviar, você autoriza a rede a distribuir o material para fins educacionais, sem venda.</p></div>
+    <div class="card stack"><h3>Pontuação de contribuição</h3><p class="small muted">Material aprovado: 20 pts. Cada estrela recebida: 2 pts. Resposta marcada como melhor: 15 pts. Resposta útil: 3 pts.</p><p class="small muted">Contas que inflam pontos com avaliações combinadas perdem os pontos do mês.</p></div>
+    <div class="card stack"><h3>Rankings</h3><p class="small muted">O ranking de contribuição mede quem colabora na rede. O ranking de resultados usa ENEM, FUVEST, OBMEP, infraestrutura e evolução, com pesos públicos.</p><p class="small muted">Ser assinante não muda a posição de nenhuma escola em nenhum dos dois.</p></div>
+    <div class="card stack"><h3>Vínculo com a escola</h3><p class="small muted">A escola é a assinante. Ela convida professores e alunos, confirma o vínculo e pode removê-lo quando alguém sai.</p><p class="small muted">Professores pedem o acesso e a coordenação confirma antes de liberar a publicação.</p></div>
+  </div>
+</section>
+
+</main>
+
+<nav class="tabbar" id="nav-tab"></nav>
+
+<footer><div class="wrap"><span>EduRede · versão piloto 2026</span><span><a href="#" data-go="regras">Regras, privacidade e direitos autorais</a></span></div></footer>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- DADOS DE EXEMPLO ---------- */
+const SCHOOLS=[
+ {id:1,sigla:"CI",nome:"Colégio Estadual Ipê",cidade:"Belo Horizonte, MG",reg:"Sudeste",cor:"#2743E0",desc:"Escola pública de ensino médio com foco em olimpíadas científicas. Madrinha de duas escolas em Química.",pts:4820,ano:41200,mats:312,aval:1188,ajuda:404,alunos:920,profs:52,forte:{Matemática:92,Química:88,Física:71,Português:60,História:45}},
+ {id:2,sigla:"MG",nome:"EE Mangue Seco",cidade:"Recife, PE",reg:"Nordeste",cor:"#1E9E63",desc:"Ensino fundamental e médio. Referência em redação e produção de texto na rede.",pts:4310,ano:36900,mats:280,aval:1020,ajuda:391,alunos:760,profs:44,forte:{Português:95,História:80,Geografia:74,Matemática:52,Biologia:48}},
+ {id:3,sigla:"SP",nome:"Colégio Serra Pelada",cidade:"Curitiba, PR",reg:"Sul",cor:"#D4780F",desc:"Escola particular de médio porte. Contribui principalmente com listas e simulados de exatas.",pts:3975,ano:38100,mats:265,aval:940,ajuda:310,alunos:540,profs:38,forte:{Física:90,Matemática:85,Química:66,Biologia:50,Português:41}},
+ {id:4,sigla:"AR",nome:"EMEF Araribá",cidade:"Manaus, AM",reg:"Norte",cor:"#8E44AD",desc:"Fundamental II. Entrou na rede em 2025 e já é a escola que mais responde no fórum.",pts:3120,ano:22400,mats:140,aval:610,ajuda:520,alunos:610,profs:29,forte:{Biologia:78,Geografia:75,História:62,Matemática:44,Português:58}},
+ {id:5,sigla:"CV",nome:"Colégio Vale Verde",cidade:"Goiânia, GO",reg:"Centro-Oeste",cor:"#C8323E",desc:"Ensino médio integral. Organiza o simulado conjunto trimestral da rede.",pts:2890,ano:29800,mats:190,aval:720,ajuda:260,alunos:480,profs:33,forte:{Biologia:84,Química:70,História:68,Matemática:61,Física:55}},
+ {id:6,sigla:"LB",nome:"EE Lagoa Bonita",cidade:"Santos, SP",reg:"Sudeste",cor:"#0E8DA8",desc:"Fundamental e médio. Apadrinhada em Matemática pelo Colégio Estadual Ipê desde março.",pts:2140,ano:15600,mats:98,aval:410,ajuda:180,alunos:700,profs:36,forte:{Geografia:72,Português:66,História:60,Matemática:38,Física:30}},
+];
+const MATS=[
+ {id:1,t:"Prova de Física — Cinemática (2º bimestre)",tipo:"Prova",disc:"Física",serie:"1º ano EM",tema:"Cinemática",tags:["MRU","MRUV","gráficos"],esc:3,autor:"Prof. Ricardo Mota",nota:4.8,n:126,dl:1420,desc:"Prova aplicada em 2025 com 10 questões dissertativas e 5 de múltipla escolha. Gabarito no material #7.",coments:[{a:"Bianca S. · EE Mangue Seco",c:"As questões de gráfico v×t são muito parecidas com as da nossa prova. Ajudou demais."},{a:"Prof. Ana Lúcia · Colégio Vale Verde",c:"Usei a questão 8 como exemplo em sala. Boa formulação."}]},
+ {id:2,t:"Resumo ilustrado: Revolução Francesa",tipo:"Resumo",disc:"História",serie:"8º ano",tema:"Idade Contemporânea",tags:["mapa mental","causas","fases"],esc:2,autor:"Marina C. (aluna)",nota:4.9,n:214,dl:2310,desc:"Mapa mental de 3 páginas com causas, fases e consequências. Feito à mão e digitalizado.",coments:[{a:"Lucas P. · EMEF Araribá",c:"Melhor resumo que já vi disso, sério."}]},
+ {id:3,t:"Lista 04 — Função afim e gráficos",tipo:"Lista",disc:"Matemática",serie:"9º ano",tema:"Funções",tags:["função afim","coeficiente","gráfico"],esc:1,autor:"Prof. Helena Duarte",nota:4.7,n:98,dl:1105,desc:"30 exercícios progressivos, dos básicos aos de vestibular. Respostas ao final.",coments:[]},
+ {id:4,t:"Gabarito comentado — ENEM 2025 Ciências da Natureza",tipo:"Gabarito",disc:"Química",serie:"3º ano EM",tema:"ENEM",tags:["ENEM","resolução","2025"],esc:1,autor:"Prof. Tiago Nunes",nota:4.9,n:340,dl:4880,desc:"Resolução passo a passo das 45 questões, com o motivo de cada alternativa estar errada.",coments:[{a:"Rafael M. · Colégio Serra Pelada",c:"A explicação da questão 112 finalmente fez sentido."}]},
+ {id:5,t:"Apostila de redação: estrutura dissertativa",tipo:"Apostila",disc:"Português",serie:"3º ano EM",tema:"Redação",tags:["dissertação","ENEM","coesão"],esc:2,autor:"Prof. Carla Ribeiro",nota:4.8,n:189,dl:3020,desc:"22 páginas com modelos de introdução, repertório sociocultural e 6 redações nota 1000 comentadas (com autorização dos autores).",coments:[]},
+ {id:6,t:"Resumo: Ciclo do carbono e efeito estufa",tipo:"Resumo",disc:"Biologia",serie:"1º ano EM",tema:"Ecologia",tags:["ciclos","clima","ecologia"],esc:5,autor:"Pedro A. (aluno)",nota:4.5,n:61,dl:640,desc:"Duas páginas diretas ao ponto, com esquema do ciclo.",coments:[]},
+ {id:7,t:"Gabarito — Prova de Física Cinemática",tipo:"Gabarito",disc:"Física",serie:"1º ano EM",tema:"Cinemática",tags:["gabarito","MRUV"],esc:3,autor:"Prof. Ricardo Mota",nota:4.6,n:80,dl:1010,desc:"Resolução comentada da prova #1.",coments:[]},
+ {id:8,t:"Lista: Estequiometria com excesso de reagente",tipo:"Lista",disc:"Química",serie:"2º ano EM",tema:"Estequiometria",tags:["mol","reagente limitante"],esc:1,autor:"Prof. Tiago Nunes",nota:4.4,n:44,dl:530,desc:"15 exercícios com foco em reagente limitante e rendimento.",coments:[]},
+ {id:9,t:"Prova de Geografia — Regiões do Brasil",tipo:"Prova",disc:"Geografia",serie:"7º ano",tema:"Regionalização",tags:["IBGE","regiões","clima"],esc:4,autor:"Prof. Denise Farias",nota:4.3,n:52,dl:470,desc:"Prova de 2025 com mapas para completar.",coments:[]},
+ {id:10,t:"Simulado conjunto da rede — 1º trimestre 2026",tipo:"Prova",disc:"Matemática",serie:"3º ano EM",tema:"Simulado",tags:["simulado","rede","2026"],esc:5,autor:"Comissão de simulados",nota:4.7,n:302,dl:5100,desc:"Simulado de 90 questões aplicado em 22 escolas ao mesmo tempo. Inclui ranking anônimo por escola.",coments:[]},
+ {id:11,t:"Resumo: Orações subordinadas",tipo:"Resumo",disc:"Português",serie:"9º ano",tema:"Sintaxe",tags:["gramática","sintaxe"],esc:6,autor:"Júlia L. (aluna)",nota:4.2,n:37,dl:390,desc:"Tabela comparativa das subordinadas substantivas, adjetivas e adverbiais.",coments:[]},
+ {id:12,t:"Lista: Leis de Newton com resolução",tipo:"Lista",disc:"Física",serie:"1º ano EM",tema:"Dinâmica",tags:["Newton","força","atrito"],esc:3,autor:"Gabriel T. (aluno)",nota:4.6,n:71,dl:820,desc:"20 exercícios resolvidos, revisados pelo Prof. Ricardo.",coments:[]},
+];
+const PEOPLE={
+ alunos:[{n:"Marina Castro",esc:2,pts:960,ano:6200,disc:"História",reg:"Nordeste"},{n:"Gabriel Tavares",esc:3,pts:880,ano:5900,disc:"Física",reg:"Sul"},{n:"Lucas Pimentel",esc:4,pts:845,ano:4100,disc:"Biologia",reg:"Norte"},{n:"Júlia Lima",esc:6,pts:720,ano:3300,disc:"Português",reg:"Sudeste"},{n:"Pedro Alencar",esc:5,pts:690,ano:4800,disc:"Biologia",reg:"Centro-Oeste"},{n:"Bianca Souza",esc:2,pts:610,ano:5100,disc:"Matemática",reg:"Nordeste"},{n:"Rafael Moreira",esc:3,pts:580,ano:2900,disc:"Química",reg:"Sul"},{n:"Aline Rocha",esc:1,pts:540,ano:6100,disc:"Matemática",reg:"Sudeste"}],
+ professores:[{n:"Prof. Tiago Nunes",esc:1,pts:1420,ano:11800,disc:"Química",reg:"Sudeste"},{n:"Prof. Carla Ribeiro",esc:2,pts:1310,ano:10200,disc:"Português",reg:"Nordeste"},{n:"Prof. Ricardo Mota",esc:3,pts:1240,ano:9900,disc:"Física",reg:"Sul"},{n:"Prof. Helena Duarte",esc:1,pts:1105,ano:9400,disc:"Matemática",reg:"Sudeste"},{n:"Prof. Denise Farias",esc:4,pts:870,ano:5600,disc:"Geografia",reg:"Norte"},{n:"Prof. Ana Lúcia Prado",esc:5,pts:820,ano:7100,disc:"Biologia",reg:"Centro-Oeste"}],
+};
+const FORUM=[
+ {id:1,disc:"Química",t:"Como saber qual é o reagente limitante quando as proporções não são 1:1?",a:"Bianca S. · EE Mangue Seco",v:34,resp:[{a:"Aline R. · Colégio Estadual Ipê",c:"Divide o número de mols de cada reagente pelo coeficiente dele na equação balanceada. O que der o menor resultado é o limitante. Exemplo: 2H₂ + O₂ → 2H₂O, com 3 mol de H₂ e 2 mol de O₂: 3/2 = 1,5 e 2/1 = 2, então o H₂ limita.",best:true},{a:"Prof. Tiago N. · Colégio Estadual Ipê",c:"Complementando: a Lista de Estequiometria da biblioteca tem 15 exercícios só disso."}]},
+ {id:2,disc:"Matemática",t:"Por que o coeficiente angular negativo faz a reta 'descer'?",a:"Júlia L. · EE Lagoa Bonita",v:21,resp:[{a:"Gabriel T. · Colégio Serra Pelada",c:"Porque o coeficiente angular é o quanto y muda a cada 1 de x. Se é negativo, y diminui conforme x aumenta. Desenha dois pontos e você vê.",best:true}]},
+ {id:3,disc:"Português",t:"Diferença entre oração subordinada adjetiva restritiva e explicativa?",a:"Lucas P. · EMEF Araribá",v:18,resp:[{a:"Marina C. · EE Mangue Seco",c:"Restritiva não tem vírgula e limita o sentido: 'os alunos que estudaram passaram' (só esses). Explicativa tem vírgula e só acrescenta: 'os alunos, que estudaram, passaram' (todos).",best:true},{a:"Júlia L. · EE Lagoa Bonita",c:"Tem uma tabela no meu resumo de subordinadas, tá na biblioteca."}]},
+ {id:4,disc:"Física",t:"Numa rampa sem atrito, a massa influencia a aceleração?",a:"Pedro A. · Colégio Vale Verde",v:12,resp:[]},
+];
+const EVENTS=[
+ {d:"07",m:"OUT",t:"OBMEP — inscrições para a 2ª fase",s:"Prazo para as escolas confirmarem alunos classificados."},
+ {d:"14",m:"OUT",t:"Simulado conjunto da rede — 2º trimestre",s:"Aplicado ao mesmo tempo em 26 escolas. Resultado anônimo por escola no dia 20."},
+ {d:"22",m:"OUT",t:"Feira de Ciências interescolar (online)",s:"Projetos do Ipê, Vale Verde e Araribá. Inscrições abertas."},
+ {d:"05",m:"NOV",t:"Semana de redação ENEM",s:"Correções cruzadas: professores corrigem redações de outras escolas."},
+];
+const PARTNERS=[
+ {a:1,b:6,disc:"Matemática",desde:"março/2026",s:"Listas semanais + plantão de dúvidas quinzenal no fórum."},
+ {a:1,b:4,disc:"Química",desde:"junho/2026",s:"Preparação para a OBQ Jr. com simulados mensais."},
+ {a:2,b:3,disc:"Português",desde:"fevereiro/2026",s:"Correção cruzada de redações e oficinas de argumentação."},
+ {a:3,b:5,disc:"Física",desde:"agosto/2026",s:"Banco de provas compartilhado e resolução de vestibulares."},
+];
+const BADGES=["Top Colaborador de Matemática","Top Colaborador de Português","Mestre do Fórum","Primeira contribuição","10 materiais aprovados","Madrinha do mês","Resposta mais votada","Revisor confiável","100 estrelas recebidas","Simulado da rede 2026"];
+const DISCS=["Todas","Matemática","Português","Física","Química","Biologia","História","Geografia"];
+const ME={n:"Júlia Lima",esc:6,serie:"9º ano",pts:720,ano:3300,pos:4,mats:6,resp:23,est:112,badges:["Top Colaborador de Português","Primeira contribuição","Resposta mais votada"]};
+
+/* ---------- RESULTADOS DAS ESCOLAS (demonstração) ---------- */
+const PESOS=[["enem","ENEM",30],["fuvest","FUVEST",20],["obmep","OBMEP",15],["infra","Infraestrutura",20],["evol","Evolução",15]];
+const _c=v=>Math.max(0,Math.min(100,v));
+const NORM={enem:v=>_c((v-450)/350*100),fuvest:v=>_c(v/30*100),obmep:v=>_c(v/12*100),infra:v=>_c(v),evol:v=>_c((v+20)/60*100)};
+const RESULTS={
+ 1:{enem:742,fuvest:18,obmep:11,infra:78,evol:22},
+ 2:{enem:698,fuvest:9,obmep:3,infra:66,evol:31},
+ 3:{enem:771,fuvest:27,obmep:6,infra:92,evol:8},
+ 5:{enem:725,fuvest:14,obmep:5,infra:85,evol:15},
+ 6:{enem:640,fuvest:6,obmep:2,infra:58,evol:12}
+};
+const indice=id=>Math.round(PESOS.reduce((a,p)=>a+NORM[p[0]](RESULTS[id][p[0]])*p[2]/100,0));
+
+/* ---------- UTIL ---------- */
+const $=s=>document.querySelector(s);
+const esc=id=>SCHOOLS.find(s=>s.id===id);
+const stars=n=>"★".repeat(Math.round(n))+"☆".repeat(5-Math.round(n));
+const fmt=n=>n.toLocaleString("pt-BR");
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove("show"),2800)}
+function openModal(html){$("#modal").innerHTML=html;$("#overlay").classList.add("open");document.body.style.overflow="hidden"}
+function closeModal(){$("#overlay").classList.remove("open");document.body.style.overflow=""}
+function tclass(t){return "t-"+t.toLowerCase()}
+function tshort(t){return {Resumo:"RES",Prova:"PROVA",Lista:"LISTA",Apostila:"APOST",Gabarito:"GAB"}[t]}
+
+/* ---------- NAV ---------- */
+const PAGES=[["inicio","Início","M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"],["materiais","Materiais","M4 4h12l4 4v12H4z M8 12h8 M8 16h8"],["rankings","Rankings","M4 20V10 M12 20V4 M20 20v-7"],["forum","Fórum","M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z"],["escolas","Escolas","M3 21h18 M5 21V9l7-5 7 5v12 M10 21v-6h4v6"],["professores","Professores","M12 3l9 5-9 5-9-5 9-5z M7 11v4c0 1.5 2.2 3 5 3s5-1.5 5-3v-4"],["perfil","Perfil","M20 21a8 8 0 1 0-16 0 M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"]];
+$("#nav-main").innerHTML=PAGES.map(p=>`<button data-go="${p[0]}">${p[1]}</button>`).join("");
+$("#nav-tab").innerHTML=PAGES.map(p=>`<button data-go="${p[0]}"><svg viewBox="0 0 24 24"><path d="${p[2]}"/></svg>${p[1]}</button>`).join("");
+function go(page){
+  document.querySelectorAll("section.page").forEach(s=>s.classList.toggle("active",s.id==="p-"+page));
+  document.querySelectorAll("[data-go]").forEach(b=>b.classList.toggle("active",b.dataset.go===page&&b.tagName==="BUTTON"));
+  if(page==="escolas"){$("#school-list-view").style.display="";$("#school-profile-view").style.display="none"}
+  window.scrollTo({top:0});
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(b){e.preventDefault();go(b.dataset.go)}});
+
+/* theme */
+(function(){let t=null;try{t=localStorage.getItem("edurede-theme")}catch(e){} if(t)document.documentElement.dataset.theme=t;})();
+$("#theme").onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark";try{localStorage.setItem("edurede-theme",r.dataset.theme)}catch(e){}};
+
+/* ---------- MATERIAIS ---------- */
+function matCard(m){const s=esc(m.esc);return `<div class="card mat" role="button" tabindex="0" onclick="openMat(${m.id})" onkeydown="if(event.key==='Enter')openMat(${m.id})">
+  <div class="row between"><div class="type ${tclass(m.tipo)}">${tshort(m.tipo)}</div><span class="chip">${m.serie}</span></div>
+  <h3>${m.t}</h3>
+  <p class="tiny">${m.disc} · ${m.tema}</p>
+  <div class="chips">${m.tags.map(t=>`<span class="chip">${t}</span>`).join("")}</div>
+  <div class="foot"><span class="small muted">${s.nome.replace("Colégio Estadual","CE").replace("Colégio","Col.")}</span><span class="small"><span class="stars">${stars(m.nota)}</span> <b>${m.nota}</b> <span class="tiny">(${m.n})</span></span></div>
+</div>`}
+$("#home-mats").innerHTML=[...MATS].sort((a,b)=>b.dl-a.dl).slice(0,3).map(matCard).join("");
+let curDisc="Todas";
+$("#f-disc").innerHTML=DISCS.map(d=>`<button class="${d==='Todas'?'on':''}" data-d="${d}">${d}</button>`).join("");
+$("#f-disc").onclick=e=>{const b=e.target.closest("button");if(!b)return;curDisc=b.dataset.d;[...$("#f-disc").children].forEach(x=>x.classList.toggle("on",x===b));renderMats()};
+["#q","#f-serie","#f-tipo"].forEach(s=>$(s).addEventListener("input",renderMats));
+function renderMats(){
+  const q=$("#q").value.toLowerCase(),se=$("#f-serie").value,ti=$("#f-tipo").value;
+  const list=MATS.filter(m=>(curDisc==="Todas"||m.disc===curDisc)&&(!se||m.serie===se)&&(!ti||m.tipo===ti)&&(!q||(m.t+m.tema+m.tags.join(" ")+m.disc).toLowerCase().includes(q)));
+  $("#mat-count").textContent=list.length+" materiais encontrados";
+  $("#mat-grid").innerHTML=list.length?list.map(matCard).join(""):`<div class="card" style="grid-column:1/-1"><h3>Nada por aqui ainda</h3><p class="muted small">Nenhum material corresponde a esses filtros. Seja o primeiro a enviar um sobre esse tema.</p><button class="btn sm" style="margin-top:10px" onclick="openUpload()">Enviar material</button></div>`;
+}
+renderMats();
+let myRating=0;
+function openMat(id){const m=MATS.find(x=>x.id===id),s=esc(m.esc);myRating=0;
+ openModal(`<div class="head"><span class="chip ${m.tipo==='Prova'?'warn':'pen'}">${m.tipo} · ${m.disc} · ${m.serie}</span><button class="icon-btn" onclick="closeModal()" aria-label="Fechar">✕</button></div>
+ <h2 style="font-size:1.35rem">${m.t}</h2>
+ <p class="small muted" style="margin:8px 0">${m.desc}</p>
+ <div class="row wrapf small" style="gap:14px;margin:10px 0"><span><span class="stars">${stars(m.nota)}</span> <b>${m.nota}</b> · ${m.n} avaliações</span><span class="muted">${fmt(m.dl)} downloads</span></div>
+ <div class="row small" style="margin-bottom:14px"><a href="#" onclick="event.preventDefault();showSchool(${s.id});closeModal()"><b>${s.nome}</b></a><span class="muted">· enviado por ${m.autor}</span><span class="chip ok">Aprovado por professor</span></div>
+ <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" onclick="toast('Download iniciado (demonstração)')">Baixar PDF</button><button class="btn ghost" onclick="toast('Salvo na sua lista')">Salvar</button><button class="btn ghost" onclick="openReport('material','${m.t.replace(/'/g,"")}')">Denunciar</button></div>
+ <div style="margin-top:20px"><h3 style="font-size:1rem">Sua avaliação</h3><div class="rate-btns" id="rate">${[1,2,3,4,5].map(i=>`<button onclick="rate(${i})" aria-label="${i} estrelas">★</button>`).join("")}</div>
+ <textarea rows="2" placeholder="Comentário (opcional). Lembre: é público e moderado."></textarea><button class="btn sm" style="margin-top:8px" onclick="toast('Avaliação enviada. Obrigado!');closeModal()">Enviar avaliação</button></div>
+ <div style="margin-top:20px"><h3 style="font-size:1rem;margin-bottom:6px">Comentários (${m.coments.length})</h3>${m.coments.length?m.coments.map(c=>`<div class="comment"><p class="tiny">${c.a}</p><p class="small">${c.c}</p></div>`).join(""):'<p class="small muted">Ainda sem comentários. O seu pode ser o primeiro.</p>'}</div>`);
+}
+function rate(n){myRating=n;[...$("#rate").children].forEach((b,i)=>b.classList.toggle("lit",i<n))}
+function openUpload(){openModal(`<div class="head"><h2 style="font-size:1.35rem">Enviar material</h2><button class="icon-btn" onclick="closeModal()" aria-label="Fechar">✕</button></div>
+ <div class="notice" style="margin-bottom:14px">Um professor da rede revisa antes de publicar. Só envie o que você produziu ou tem autorização para compartilhar. Livros e apostilas pagas não são aceitos. <a href="#" data-go="regras" onclick="closeModal()">Ver regras</a></div>
+ <div class="field"><label>Título</label><input placeholder="Ex.: Lista de exercícios — Frações (6º ano)"></div>
+ <div class="grid g2"><div class="field"><label>Tipo</label><select><option>Resumo</option><option>Lista de exercícios</option><option>Prova anterior</option><option>Gabarito</option><option>Apostila</option></select></div><div class="field"><label>Disciplina</label><select>${DISCS.slice(1).map(d=>`<option>${d}</option>`).join("")}</select></div></div>
+ <div class="grid g2"><div class="field"><label>Série</label><select><option>6º ano</option><option>7º ano</option><option>8º ano</option><option>9º ano</option><option>1º ano EM</option><option>2º ano EM</option><option>3º ano EM</option></select></div><div class="field"><label>Tema</label><input placeholder="Ex.: Frações"></div></div>
+ <div class="field"><label>Tags (separadas por vírgula)</label><input placeholder="frações, mmc, operações"></div>
+ <div class="field"><label>Arquivo (PDF, até 20 MB)</label><input type="file" accept=".pdf"></div>
+ <div class="field"><label class="row" style="gap:8px;align-items:flex-start"><input type="checkbox" style="width:auto;margin-top:3px"><span>Confirmo que este material é de minha autoria ou que tenho autorização para compartilhá-lo, e aceito as regras de direitos autorais da rede.</span></label></div>
+ <button class="btn" onclick="toast('Material enviado! Aguardando aprovação de um professor.');closeModal()">Enviar para revisão</button>`)}
+function openReport(kind,what){openModal(`<div class="head"><h2 style="font-size:1.35rem">Denunciar conteúdo</h2><button class="icon-btn" onclick="closeModal()" aria-label="Fechar">✕</button></div>
+ <p class="small muted" style="margin-bottom:12px">${kind==='material'?'Material':'Publicação'}: <b>${what}</b></p>
+ <div class="field"><label>Motivo</label><select><option>Viola direitos autorais (material de livro, cursinho ou pago)</option><option>Conteúdo impróprio ou ofensivo</option><option>Expõe dados pessoais de alguém</option><option>Erro grave no conteúdo</option><option>Spam ou fora do tema</option></select></div>
+ <div class="field"><label>Detalhes (opcional)</label><textarea rows="3"></textarea></div>
+ <p class="tiny" style="margin-bottom:12px">Denúncias são anônimas para quem foi denunciado e revisadas em até 24h por um professor de outra escola.</p>
+ <button class="btn" onclick="toast('Denúncia registrada. Obrigado por cuidar da rede.');closeModal()">Enviar denúncia</button>`)}
+
+/* ---------- RANKINGS ---------- */
+let rt="escolas";
+$("#rank-tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;rt=b.dataset.rt;[...$("#rank-tabs").children].forEach(x=>x.classList.toggle("on",x===b));renderRank()};
+["#r-reg","#r-disc","#r-per"].forEach(s=>$(s).onchange=renderRank);
+function rankRow(i,name,sub,pts,per,onclick){const d=[+12,+3,-1,+5,0,-2,+1,+4][i]||0;
+ return `<div class="rrow ${i===0?'top1':''}" ${onclick?`role="button" tabindex="0" onclick="${onclick}"`:''}><div class="pos">${i+1}</div><div><b>${name}</b><div class="tiny">${sub} ${d?`<span class="delta ${d>0?'up':'down'}">${d>0?'▲':'▼'} ${Math.abs(d)}</span>`:''}</div></div><div class="pts">${fmt(pts)}<small>pts ${per==='mes'?'no mês':'em 2026'}</small></div></div>`}
+function renderRank(){
+  const reg=$("#r-reg").value,disc=$("#r-disc").value,per=$("#r-per").value;
+  let rows;
+  if(rt==="escolas"){
+    let list=SCHOOLS.filter(s=>!reg||s.reg===reg);
+    list=list.map(s=>({...s,score:disc?Math.round((per==='mes'?s.pts:s.ano)*((s.forte[disc]||20)/100)):(per==='mes'?s.pts:s.ano)})).sort((a,b)=>b.score-a.score);
+    rows=list.map((s,i)=>rankRow(i,s.nome,`${s.cidade} · ${s.mats} materiais · ${s.ajuda} ajudas`,s.score,per,`showSchool(${s.id})`));
+  }else{
+    let list=PEOPLE[rt].filter(p=>(!reg||p.reg===reg)&&(!disc||p.disc===disc)).map(p=>({...p,score:per==='mes'?p.pts:p.ano})).sort((a,b)=>b.score-a.score);
+    rows=list.map((p,i)=>rankRow(i,p.n,`${esc(p.esc).nome} · ${p.disc}`,p.score,per,null));
+  }
+  $("#rank-list").innerHTML=rows.length?rows.join(""):`<div class="card"><h3>Ninguém nesse recorte ainda</h3><p class="small muted">Tente outra região ou disciplina.</p></div>`;
+}
+renderRank();
+$("#badge-list").innerHTML=BADGES.map(b=>`<span class="badge"><i>★</i>${b}</span>`).join("");
+$("#home-rank").innerHTML=[...SCHOOLS].sort((a,b)=>b.pts-a.pts).slice(0,4).map((s,i)=>rankRow(i,s.nome,s.cidade,s.pts,"mes",`showSchool(${s.id})`)).join("");
+$("#home-events").innerHTML=EVENTS.map(e=>`<div class="card ev"><div class="date">${e.d}<small>${e.m}</small></div><div><b class="small">${e.t}</b><p class="tiny">${e.s}</p></div></div>`).join("");
+
+/* ---------- RANKING: alternar entre contribuição e resultados ---------- */
+$("#rank-kind").onclick=e=>{const b=e.target.closest("button");if(!b)return;[...$("#rank-kind").children].forEach(x=>x.classList.toggle("on",x===b));$("#rk-contrib").style.display=b.dataset.k==="contrib"?"":"none";$("#rk-result").style.display=b.dataset.k==="result"?"":"none"};
+
+/* ---------- RANKING DE RESULTADOS ---------- */
+function resultList(reg,key){const k=key||"indice";
+ return SCHOOLS.filter(s=>RESULTS[s.id]&&(!reg||s.reg===reg)).map(s=>({s,r:RESULTS[s.id],idx:indice(s.id)}))
+  .sort((a,b)=>k==="indice"?b.idx-a.idx:NORM[k](b.r[k])-NORM[k](a.r[k]))}
+function resRow(i,x){const r=x.r;return `<div class="rrow ${i===0?'top1':''}" role="button" tabindex="0" onclick="showSchool(${x.s.id})" onkeydown="if(event.key==='Enter')showSchool(${x.s.id})"><div class="pos">${i+1}</div><div><b>${x.s.nome}</b><div class="tiny">${x.s.cidade}</div><div class="chips"><span class="chip">ENEM ${r.enem}</span><span class="chip">FUVEST ${r.fuvest}%</span><span class="chip">OBMEP ${r.obmep} medalhas</span><span class="chip">Infra ${r.infra}/100</span><span class="chip ${r.evol>=0?'ok':'warn'}">${r.evol>0?'+':''}${r.evol} no ENEM</span></div></div><div class="pts">${x.idx}<small>índice de 0 a 100</small></div></div>`}
+function renderResult(){const list=resultList($("#s-reg").value,$("#s-ord").value);
+ $("#res-list").innerHTML=list.length?list.map((x,i)=>resRow(i,x)).join(""):`<div class="card"><h3>Nenhuma escola nesse recorte</h3><p class="small muted">Tente outra região.</p></div>`}
+["#s-reg","#s-ord"].forEach(q=>$(q).onchange=renderResult);
+renderResult();
+$("#pesos").innerHTML=PESOS.map(p=>`<div class="bar-row"><span>${p[1]}</span><div class="bar"><span style="width:${p[2]*3}%"></span></div><span class="tiny" style="text-align:right">${p[2]}%</span></div>`).join("");
+function resultsCard(id){const r=RESULTS[id];
+ if(!r)return `<div class="notice" style="margin-top:14px">Esta escola atende só o Ensino Fundamental e não entra no ranking de resultados.</div>`;
+ const raw={enem:r.enem,fuvest:r.fuvest+"%",obmep:r.obmep,infra:r.infra,evol:(r.evol>0?"+":"")+r.evol};
+ return `<div class="card" style="margin-top:14px"><div class="row between wrapf"><h3>Resultados</h3><span class="tiny">Índice ${indice(id)} de 100 · dados de demonstração</span></div><div class="stack" style="gap:10px;margin-top:12px">${PESOS.map(p=>`<div class="bar-row"><span>${p[1]}</span><div class="bar"><span style="width:${Math.round(NORM[p[0]](r[p[0]]))}%"></span></div><span class="tiny" style="text-align:right">${raw[p[0]]}</span></div>`).join("")}</div></div>`}
+
+/* ---------- PROFESSORES ---------- */
+(function(){
+ const profs=PEOPLE.professores.map(p=>{const ms=MATS.filter(m=>m.autor===p.n);return {...p,nm:ms.length,dl:ms.reduce((a,m)=>a+m.dl,0)}});
+ $("#prof-top").innerHTML=profs.map(p=>`<div class="card"><div class="row"><div class="avatar">${p.n.replace("Prof. ","").split(" ").slice(0,2).map(w=>w[0]).join("")}</div><div><b>${p.n}</b><p class="tiny">${esc(p.esc).nome} · ${p.disc}</p></div></div><div class="row wrapf small" style="gap:14px;margin-top:12px"><span><b>${fmt(p.pts)}</b> pts no mês</span><span><b>${fmt(p.ano)}</b> pts em 2026</span></div></div>`).join("");
+ const mine=[["Lista 04 — Função afim e gráficos","1.105","4,7"],["Lista 05 — Função quadrática","860","4,6"],["Prova — Geometria plana (2º bimestre)","720","4,5"]];
+ const rev=[["Lista: Probabilidade condicional","Aline R. (aluna)"],["Resumo: Funções trigonométricas","Davi S. (aluno)"],["Lista: Progressões aritméticas","Letícia M. (aluna)"]];
+ $("#prof-panel").innerHTML=`<div class="notice" style="margin-bottom:14px">Visualização de demonstração como <b>Prof. Helena Duarte</b>, Colégio Estadual Ipê.</div>
+ <div class="stats" style="margin-top:0"><div class="stat"><b>18</b><span>materiais publicados</span></div><div class="stat"><b>6.820</b><span>downloads em 2026</span></div><div class="stat"><b>4,7</b><span>nota média</span></div><div class="stat"><b>3</b><span>aguardando sua revisão</span></div></div>
+ <div class="grid g2" style="margin-top:24px">
+  <div class="card"><h3 style="margin-bottom:10px">Meus materiais</h3>${mine.map((m,i)=>`<div class="row between wrapf" style="padding:10px 0;${i<mine.length-1?'border-bottom:1px solid var(--line)':''}"><span class="small"><b>${m[0]}</b></span><span class="tiny">${m[1]} downloads · ★ ${m[2]}</span></div>`).join("")}<button class="btn sm" style="margin-top:12px" onclick="openUpload()">Enviar novo material</button></div>
+  <div class="card"><h3 style="margin-bottom:10px">Para revisar</h3>${rev.map((x,i)=>`<div class="row between wrapf" style="padding:10px 0;${i<rev.length-1?'border-bottom:1px solid var(--line)':''}"><div><b class="small">${x[0]}</b><p class="tiny">${x[1]} · Matemática</p></div><div class="row" style="gap:6px"><button class="btn sm" onclick="toast('Material aprovado e publicado')">Aprovar</button><button class="btn ghost sm" onclick="toast('Devolvido ao autor com observações')">Devolver</button></div></div>`).join("")}</div>
+ </div>`;
+})();
+function showProfRank(){go("rankings");$("#rank-kind").querySelector('[data-k="contrib"]').click();rt="professores";[...$("#rank-tabs").children].forEach(x=>x.classList.toggle("on",x.dataset.rt==="professores"));renderRank()}
+function openProf(){openModal(`<div class="head"><h2 style="font-size:1.35rem">Entrar como professor</h2><button class="icon-btn" onclick="closeModal()" aria-label="Fechar">✕</button></div>
+ <div class="notice" style="margin-bottom:14px">Seu acesso é ligado a uma escola da rede. A coordenação confirma o vínculo antes de liberar a publicação.</div>
+ <div class="field"><label>Nome completo</label><input placeholder="Ex.: Helena Duarte"></div>
+ <div class="field"><label>E-mail institucional</label><input type="email" placeholder="nome@escola.edu.br"></div>
+ <div class="grid g2"><div class="field"><label>Escola</label><select>${SCHOOLS.map(s=>`<option>${s.nome}</option>`).join("")}<option>Minha escola ainda não está na rede</option></select></div><div class="field"><label>Disciplina</label><select>${DISCS.slice(1).map(d=>`<option>${d}</option>`).join("")}</select></div></div>
+ <div class="field"><label class="row" style="gap:8px;align-items:flex-start"><input type="checkbox" style="width:auto;margin-top:3px"><span>Confirmo que sou professor(a) e aceito as regras da rede.</span></label></div>
+ <button class="btn" onclick="toast('Pedido enviado. A coordenação da escola confirma seu vínculo.');closeModal()">Enviar pedido</button>`)}
+
+/* ---------- FÓRUM ---------- */
+let fd="Todas";
+$("#forum-filters").innerHTML=DISCS.map(d=>`<button class="${d==='Todas'?'on':''}" data-d="${d}">${d}</button>`).join("");
+$("#forum-filters").onclick=e=>{const b=e.target.closest("button");if(!b)return;fd=b.dataset.d;[...$("#forum-filters").children].forEach(x=>x.classList.toggle("on",x===b));renderForum()};
+function renderForum(){const list=FORUM.filter(t=>fd==="Todas"||t.disc===fd);
+ $("#forum-list").innerHTML=list.length?list.map(t=>`<div class="card thread"><div class="votes"><button onclick="toast('Voto registrado')" aria-label="Votar">▲</button>${t.v}</div><div>
+  <div class="row between wrapf"><span class="chip pen">${t.disc}</span><button class="tiny" onclick="openReport('forum','${t.t.replace(/'/g,"")}')">Denunciar</button></div>
+  <h3 style="margin:8px 0 4px">${t.t}</h3><p class="tiny">${t.a}</p>
+  ${t.resp.map(r=>`<div class="reply ${r.best?'best':''}"><p class="tiny">${r.best?'✔ Melhor resposta · ':''}${r.a}</p><p class="small">${r.c}</p></div>`).join("")}
+  ${t.resp.length?'':'<p class="small muted" style="margin-top:8px">Ainda sem respostas. Sabe explicar? Ganhe 15 pts se for marcada como melhor.</p>'}
+  <button class="btn ghost sm" style="margin-top:10px" onclick="toast('Resposta enviada para moderação')">Responder</button></div></div>`).join(""):`<div class="card"><h3>Nenhuma dúvida aberta</h3><p class="small muted">Nada em ${fd} por enquanto.</p></div>`}
+renderForum();
+
+/* ---------- ESCOLAS ---------- */
+$("#school-grid").innerHTML=SCHOOLS.map(s=>`<div class="card" role="button" tabindex="0" onclick="showSchool(${s.id})" onkeydown="if(event.key==='Enter')showSchool(${s.id})"><div class="row"><div class="slogo" style="background:${s.cor};width:52px;height:52px;font-size:1.1rem;border-radius:14px">${s.sigla}</div><div><b>${s.nome}</b><p class="tiny">${s.cidade}</p></div></div><p class="small muted" style="margin:10px 0">${s.desc}</p><div class="row wrapf tiny" style="gap:12px"><span><b>${s.mats}</b> materiais</span><span><b>${s.ajuda}</b> ajudas</span><span><b>${fmt(s.pts)}</b> pts</span></div></div>`).join("");
+$("#partner-list").innerHTML=PARTNERS.map(p=>{const a=esc(p.a),b=esc(p.b);return `<div class="card"><div class="row between wrapf"><span class="chip marker">${p.disc}</span><span class="tiny">desde ${p.desde}</span></div><p style="margin:10px 0 4px"><b>${a.nome}</b> <span class="muted">apadrinha</span> <b>${b.nome}</b></p><p class="small muted">${p.s}</p></div>`}).join("");
+function showSchool(id){const s=esc(id);const pos=[...SCHOOLS].sort((a,b)=>b.pts-a.pts).findIndex(x=>x.id===id)+1;const rp=resultList().findIndex(x=>x.s.id===id)+1;
+ go("escolas");$("#school-list-view").style.display="none";const v=$("#school-profile-view");v.style.display="";
+ const mats=MATS.filter(m=>m.esc===id);const parts=PARTNERS.filter(p=>p.a===id||p.b===id);const people=[...PEOPLE.alunos,...PEOPLE.professores].filter(p=>p.esc===id);
+ v.innerHTML=`<button class="btn ghost sm" onclick="go('escolas')">← Todas as escolas</button>
+ <div class="card school-hero" style="margin-top:14px"><div class="slogo" style="background:${s.cor}">${s.sigla}</div><div style="flex:1;min-width:220px"><h2>${s.nome}</h2><p class="muted small">${s.cidade} · ${s.reg}</p><p class="small" style="margin-top:8px;max-width:60ch">${s.desc}</p></div><div class="stack" style="text-align:right"><span class="chip marker" style="font-size:.95rem;padding:8px 14px">${pos}º em contribuição no mês</span>${rp?`<span class="chip pen" style="font-size:.95rem;padding:8px 14px">${rp}º em resultados</span>`:''}<span class="tiny">${fmt(s.pts)} pts · ${fmt(s.ano)} no ano</span></div></div>
+ <div class="stats" style="margin-top:14px"><div class="stat"><b>${s.mats}</b><span>materiais aprovados</span></div><div class="stat"><b>${fmt(s.aval)}</b><span>avaliações recebidas</span></div><div class="stat"><b>${s.ajuda}</b><span>dúvidas respondidas</span></div><div class="stat"><b>${s.alunos}</b><span>alunos · ${s.profs} professores</span></div></div>
+ ${resultsCard(id)}
+ <div class="grid g2" style="margin-top:24px">
+  <div class="card"><h3 style="margin-bottom:12px">Pontos fortes por disciplina</h3><div class="stack" style="gap:10px">${Object.entries(s.forte).map(([d,v])=>`<div class="bar-row"><span>${d}</span><div class="bar"><span style="width:${v}%"></span></div><span class="tiny" style="text-align:right">${v}</span></div>`).join("")}</div></div>
+  <div class="card"><h3 style="margin-bottom:12px">Parcerias</h3>${parts.length?parts.map(p=>{const o=esc(p.a===id?p.b:p.a);return `<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line)"><div><b class="small">${o.nome}</b><p class="tiny">${p.a===id?'apadrinha em':'apadrinhada em'} ${p.disc}</p></div><span class="chip">${p.desde}</span></div>`}).join(""):'<p class="small muted">Sem parcerias ativas.</p>'}<button class="btn ghost sm" style="margin-top:12px" onclick="toast('Pedido de parceria enviado ao coordenador')">Propor parceria</button></div>
+ </div>
+ <div class="sec-head"><h2>Materiais enviados</h2><span class="tiny">${mats.length} de ${s.mats} exibidos</span></div>
+ <div class="grid g3">${mats.length?mats.map(matCard).join(""):'<p class="small muted">Amostra de dados sem materiais desta escola.</p>'}</div>
+ <div class="sec-head"><h2>Colaboradores em destaque</h2></div>
+ <div class="chips">${people.map(p=>`<span class="badge"><i>${p.n[0]}</i>${p.n} · ${fmt(p.pts)} pts</span>`).join("")||'<span class="small muted">Sem destaques neste mês.</span>'}</div>`;
+ window.scrollTo({top:0});
+}
+
+/* ---------- PERFIL ---------- */
+$("#perfil-tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;[...$("#perfil-tabs").children].forEach(x=>x.classList.toggle("on",x===b));$("#perfil-aluno").style.display=b.dataset.pt==="aluno"?"":"none";$("#perfil-painel").style.display=b.dataset.pt==="painel"?"":"none"};
+(function(){const s=esc(ME.esc);
+ $("#perfil-aluno").innerHTML=`<div class="card school-hero"><div class="avatar" style="width:72px;height:72px;font-size:1.4rem">JL</div><div style="flex:1;min-width:200px"><h2>${ME.n}</h2><p class="muted small">${ME.serie} · <a href="#" onclick="event.preventDefault();showSchool(${s.id})">${s.nome}</a></p><div class="chips" style="margin-top:10px">${ME.badges.map(b=>`<span class="badge"><i>★</i>${b}</span>`).join("")}</div></div><div class="stack" style="text-align:right"><span class="chip marker" style="font-size:.95rem;padding:8px 14px">${ME.pos}º entre alunos</span><span class="tiny">${fmt(ME.pts)} pts no mês</span></div></div>
+ <div class="stats" style="margin-top:14px"><div class="stat"><b>${ME.mats}</b><span>materiais aprovados</span></div><div class="stat"><b>${ME.resp}</b><span>respostas no fórum</span></div><div class="stat"><b>${ME.est}</b><span>estrelas recebidas</span></div><div class="stat"><b>${fmt(ME.ano)}</b><span>pts em 2026</span></div></div>
+ <div class="grid g2" style="margin-top:24px">
+  <div class="card"><h3 style="margin-bottom:10px">Meus envios</h3>
+   <div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line)"><span class="small">Resumo: Orações subordinadas</span><span class="chip ok">Publicado</span></div>
+   <div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line)"><span class="small">Lista: Equações do 2º grau</span><span class="chip warn">Em revisão</span></div>
+   <div class="row between" style="padding:8px 0"><span class="small">Resumo: Verbos irregulares</span><span class="chip ok">Publicado</span></div>
+   <button class="btn sm" style="margin-top:12px" onclick="openUpload()">Enviar novo material</button></div>
+  <div class="card"><h3 style="margin-bottom:10px">Privacidade</h3><p class="small muted">Seu perfil é visível só para pessoas autenticadas na rede. Guardamos apenas nome, série e escola. Seu acesso foi autorizado por um responsável, por meio da sua escola.</p><div class="stack small" style="margin-top:12px;gap:10px"><label class="row" style="gap:8px"><input type="checkbox" checked style="width:auto">Aparecer nos rankings públicos da rede</label><label class="row" style="gap:8px"><input type="checkbox" checked style="width:auto">Mostrar meu nome nos materiais que envio</label></div><button class="btn ghost sm" style="margin-top:12px" onclick="toast('Pedido enviado ao coordenador da sua escola')">Pedir exclusão dos meus dados</button></div>
+ </div>`;
+ const sc=esc(1);
+ $("#perfil-painel").innerHTML=`<div class="notice" style="margin-bottom:14px">Visualização de demonstração como coordenador do <b>${sc.nome}</b>.</div>
+ <div class="stats" style="margin-top:0"><div class="stat"><b>1º</b><span>em contribuição no mês</span></div><div class="stat"><b>${sc.mats}</b><span>materiais aprovados</span></div><div class="stat"><b>14</b><span>aguardando revisão</span></div><div class="stat"><b>2.140</b><span>downloads esta semana</span></div></div>
+ <div class="grid g2" style="margin-top:24px">
+  <div class="card"><h3 style="margin-bottom:10px">Fila de moderação</h3>
+   ${[["Lista: Probabilidade condicional","Aline R. (aluna)","Matemática"],["Prova de Química — Funções orgânicas","Prof. Tiago N.","Química"],["Resumo: Segunda Guerra Mundial","Bruno M. (aluno)","História"]].map(x=>`<div class="row between wrapf" style="padding:10px 0;border-bottom:1px solid var(--line)"><div><b class="small">${x[0]}</b><p class="tiny">${x[1]} · ${x[2]}</p></div><div class="row" style="gap:6px"><button class="btn sm" onclick="toast('Material aprovado e publicado')">Aprovar</button><button class="btn ghost sm" onclick="toast('Devolvido ao autor com observações')">Devolver</button></div></div>`).join("")}</div>
+  <div class="card"><h3 style="margin-bottom:10px">Uso nos últimos 6 meses</h3><div class="stack" style="gap:8px">${[["Abr",42],["Mai",55],["Jun",48],["Jul",30],["Ago",78],["Set",100]].map(m=>`<div class="bar-row"><span>${m[0]}</span><div class="bar"><span style="width:${m[1]}%"></span></div><span class="tiny" style="text-align:right">${Math.round(m[1]*3.1)}</span></div>`).join("")}</div><p class="tiny" style="margin-top:8px">Materiais enviados por mês</p></div>
+ </div>
+ <div class="card" style="margin-top:24px"><div class="row between wrapf"><div><h3>Autorizações dos responsáveis</h3><p class="small muted" style="max-width:62ch;margin-top:4px">A escola coleta a autorização de um responsável e a registra aqui. Sem ela, o aluno não publica nem aparece nos rankings.</p></div><div class="row" style="gap:8px"><button class="btn ghost sm" onclick="toast('Modelo de termo baixado (demonstração)')">Baixar modelo de termo</button><button class="btn sm" onclick="toast('78 alunos pendentes. A escola contata os responsáveis.')">Ver pendentes</button></div></div><div class="bar-row" style="margin-top:14px;grid-template-columns:1fr 80px"><div class="bar"><span style="width:92%"></span></div><span class="tiny" style="text-align:right">842 de 920</span></div></div>
+ <div class="sec-head"><h2>Pessoas vinculadas</h2><button class="btn ghost sm" onclick="toast('Convite gerado. Válido por 7 dias.')">Convidar por link</button></div>
+ <div class="card scroll"><table class="table"><thead><tr><th>Nome</th><th>Papel</th><th>Série/área</th><th>Pontos</th><th>Autorização</th><th></th></tr></thead><tbody>
+ ${[["Prof. Tiago Nunes","Professor","Química",1420],["Prof. Helena Duarte","Professor","Matemática",1105],["Aline Rocha","Aluna","2º ano EM",540],["Bruno Martins","Aluno","1º ano EM",210],["Diego Faria","Aluno","7º ano",0],["Carolina Dias","Admin","Coordenação",0]].map(p=>`<tr><td><b>${p[0]}</b></td><td><span class="chip ${p[1]==='Admin'?'marker':p[1]==='Professor'?'pen':''}">${p[1]}</span></td><td>${p[2]}</td><td>${fmt(p[3])}</td><td>${p[1]==='Aluno'||p[1]==='Aluna'?(p[0]==='Diego Faria'?'<span class="chip warn">Pendente</span>':'<span class="chip ok">Autorizada</span>'):'<span class="tiny">não se aplica</span>'}</td><td><button class="tiny" onclick="toast('Permissões abertas (demonstração)')">Gerenciar</button></td></tr>`).join("")}
+ </tbody></table></div>`;
+})();
+</script>
+</body>
+</html>
